@@ -16,7 +16,8 @@ RUN yum -y install tar  \
     libxml2-dev \
     libglpk-dev \
     libxext-dev \
-    libxt-dev
+    libxt-dev \
+    libxml2-devel
 
 RUN R -e 'install.packages("optparse", repos="https://cloud.r-project.org/")'
 RUN R -e 'install.packages("BiocManager", repos="https://cloud.r-project.org/")'
