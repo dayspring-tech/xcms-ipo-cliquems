@@ -17,3 +17,7 @@ RUN R -e 'install.packages("https://cran.r-project.org/src/contrib/Archive/Hmisc
 RUN R -e 'BiocManager::install("xcms", version = "3.12")'
 RUN R -e 'BiocManager::install("IPO", version = "3.12")'
 RUN R -e 'BiocManager::install("cliqueMS", version = "3.12")'
+
+# ultimately we really just wanted to install optparse, xcms, IPO, cliqueMS, purrr, and pracma
+COPY check_packages.R /tmp/check_packages.R
+RUN Rscript --no-save /tmp/check_packages.R optparse xcms IPO cliqueMS purrr pracma
