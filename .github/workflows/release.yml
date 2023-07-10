@@ -19,7 +19,7 @@ jobs:
         images: |
           dayspringtech/xcms-ipo-cliquems
         tags: |
-          type=raw,${{ github.event.release.prerelease && 'stage' || 'prod' }}
+          type=raw,${{ github.event.release.prerelease && 'prerelease' || 'latest' }}
 
     - name: Check out code
       uses: actions/checkout@v2
