@@ -1,15 +1,38 @@
-FROM amazonlinux:2
+FROM ubuntu:22.04
 
-RUN amazon-linux-extras enable R4
-RUN yum -y install R 
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN amazon-linux-extras enable epel
-RUN yum -y install epel-release
-
-RUN yum -y install tar netcdf-devel libxml2-devel libjpeg-devel
+# Install system dependencies, AWS CLI, and R 4.5
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    dirmngr \
+    wget \
+    curl \
+    gnupg2 \
+    ca-certificates \
+    && wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | apt-key add - \
+    && add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/" \
+    && apt-get update && apt-get install -y \
+    r-base=4.5* \
+    r-base-dev=4.5* \
+    tar \
+    libnetcdf-dev \
+    libxml2-dev \
+    libjpeg-dev \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    libfontconfig1-dev \
+    libfreetype6-dev \
+    libpng-dev \
+    libtiff5-dev \
+    awscli \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN R -e 'install.packages("optparse", repos="https://cloud.r-project.org/")'
 RUN R -e 'install.packages("BiocManager", repos="https://cloud.r-project.org/")'
+RUN R -e 'BiocManager::install(version = "3.21")'
 RUN R -e 'install.packages("purrr", repos="https://cloud.r-project.org/")'
 RUN R -e 'install.packages("pracma", repos="https://cloud.r-project.org/")'
 
@@ -30,10 +53,10 @@ RUN R -e 'install.packages("colorspace", repos="https://cloud.r-project.org/")'
 # Hmisc is a dependency of CAMERA which is a dependency of IPO
 RUN R -e 'install.packages("https://cran.r-project.org/src/contrib/Archive/Hmisc/Hmisc_4.8-0.tar.gz", repos=NULL, type="source")'
 
-# now continue as usual and install xcms, IPO, and cliqueMS
-RUN R -e 'BiocManager::install("xcms", version = "3.12")'
-RUN R -e 'BiocManager::install("IPO", version = "3.12")'
-RUN R -e 'BiocManager::install("cliqueMS", version = "3.12")'
+# now continue as usual and install xcms, IPO, and cliqueMS with latest Bioconductor
+RUN R -e 'BiocManager::install("xcms")'
+RUN R -e 'BiocManager::install("IPO")'
+RUN R -e 'BiocManager::install("cliqueMS")'
 
 # ultimately we really just wanted to install optparse, xcms, IPO, cliqueMS, purrr, and pracma
 COPY check_packages.R /tmp/check_packages.R
